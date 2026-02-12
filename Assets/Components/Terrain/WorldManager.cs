@@ -1,4 +1,5 @@
 ﻿using Antymology.Helpers;
+using Antymology.Agents;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -104,6 +105,7 @@ namespace Antymology.Terrain
 
             // Intatiate the ant prefab at this location
             Ant ant = Instantiate<Ant>(antPrefab);
+            ant.worldManager = this;
             ant.transform.position = new Vector3(antStartX, antStartY, antStartZ);
         }
 
