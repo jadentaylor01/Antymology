@@ -14,7 +14,7 @@ namespace Antymology.Terrain
         /// <summary>
         /// The prefab containing the ant.
         /// </summary>
-        public GameObject antPrefab;
+        public Ant antPrefab;
 
         /// <summary>
         /// The material used for eech block.
@@ -88,7 +88,23 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-            throw new NotImplementedException();
+            float antStartX = Blocks.GetLength(0) / 2 + 0.1f;
+            float antStartY = Blocks.GetLength(1) - 0.4f;
+            float antStartZ = Blocks.GetLength(2) / 2;
+
+            // Place the any on the first non-air block from the top down at the center of the map
+            AbstractBlock blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ);
+            while (blockBelow is AirBlock)
+            {
+                antStartY -= 1f;
+                blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ);  
+            }
+            antStartY -= 1f;
+            blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ); 
+
+            // Intatiate the ant prefab at this location
+            Ant ant = Instantiate<Ant>(antPrefab);
+            ant.transform.position = new Vector3(antStartX, antStartY, antStartZ);
         }
 
         #endregion
