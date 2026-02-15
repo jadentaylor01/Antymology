@@ -89,7 +89,7 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-            float antStartX = Blocks.GetLength(0) / 2 + 0.1f;
+            float antStartX = Blocks.GetLength(0) / 2;
             float antStartY = Blocks.GetLength(1) - 0.4f;
             float antStartZ = Blocks.GetLength(2) / 2;
 
