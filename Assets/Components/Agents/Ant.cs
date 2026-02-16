@@ -48,6 +48,7 @@ namespace Antymology.Agents
         /// </summary>
         public bool overlappingWithOtherAnt = false;
 
+
         /// <summary>
         /// The raw data of the underlying world structure.
         /// </summary>
@@ -65,7 +66,7 @@ namespace Antymology.Agents
 
         void OnTriggerStay(Collider insideCollider) {
             if (insideCollider.CompareTag("Ant")) {
-            
+                overlappingWithOtherAnt = true;
             }
         }
 
