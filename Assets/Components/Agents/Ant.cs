@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using Antymology.Terrain;
+using System.ComponentModel;
 
 namespace Antymology.Agents
 {
@@ -15,6 +16,16 @@ namespace Antymology.Agents
         /// How fast the health decreases per simulation tick.
         /// </summary>
         public int healthDecayRate = 1;
+
+        /// <summary>
+        /// A multiplier so that health can decay faster when the ant is in an acidic region.
+        /// </summary>
+        private int healthDecayMultiplier = 1;
+
+        /// <summary>
+        /// How much health is restored when the ant consumes a mulch block.
+        /// </summary>
+        public int foodHealRate = 10;
          
         /// <summary>
         /// How long in seconds between each simulation tick.
@@ -48,8 +59,12 @@ namespace Antymology.Agents
         /// The main loop of the ant, this is where all the logic for the ant will go. This is called once per simulation tick, which is determined by the simulationTickRate variable.
         /// </summary>
         void tickSimulation()
-        {
+        {   
+            tryDown(); // Make sure ants don't float if another ant dug below.
+
             manageHealth();
+            checkAcid();
+
             Debug.Log("" + ticksElapsed);
 
             // For now have ants move forward, right, forward, left, then repeat. This is just to have some movement in the simulation, this will be replaced with more complex behavior in the future.
@@ -65,16 +80,19 @@ namespace Antymology.Agents
 
             if (ticksElapsed % 4 == 3)
             {
-                turnLeft();
+                consumeMulchBlockBelow();
             }
 
             // Debug.Log(health);
             ticksElapsed++;
         }
         
+        /// <summary>
+        /// Manages the health of the ant, decreasing it by the healthDecayRate each simulation tick and destroying the ant if its health reaches 0 or below.
+        /// </summary>
         void manageHealth()
         {
-            health -= healthDecayRate;
+            health -= healthDecayRate * healthDecayMultiplier;
             if (health <= 0)
             {
                 Destroy(gameObject);
@@ -82,6 +100,50 @@ namespace Antymology.Agents
 
         }
 
+        /// <summary>
+        /// Changes the healthDecayMultiplier so that the ant loses health faster when it is on an acidic block.
+        /// </summary>
+        void checkAcid()
+        {
+            if (lookBelow() is AcidicBlock)
+            {
+                healthDecayMultiplier = 2;
+            }
+            else
+            {
+                healthDecayMultiplier = 1;
+            }
+        }
+
+        /// <summary>
+        /// Consumes the block below the ant. The block must be mulch and there can only be one ant on the block that is being consumed.
+        /// </summary>
+        void consumeMulchBlockBelow()
+        {
+            if (lookBelow() is MulchBlock)
+            {
+                // TODO: Check if there is an another ant on the block.
+                dig();
+                health += foodHealRate;
+            }
+        }
+
+        /// <summary>
+        /// Digs the block below the ant, replacing it with an air block. The ant will then try to move down.
+        /// </summary>
+        void dig()
+        {
+            if (lookBelow() is not ContainerBlock)
+            {
+                Vector3 currentPosition = transform.position;
+                WorldManager.Instance.SetBlock((int)currentPosition.x, (int)currentPosition.y, (int)currentPosition.z, new AirBlock());
+                tryDown();
+            }
+        }
+
+        /// <summary>
+        /// Moves the ant forward if possible. The ant will try to move forward, if it cannot move forward it will try to move forward and down, if it cannot move forward and down it will try to move forward and up, if it cannot move in any of those directions it will not move at all.
+        /// </summary>
         void forward()
         {
             // Check to find if the ant needs to move forward, forward down, forward up, or if it cannot move at all
@@ -109,6 +171,17 @@ namespace Antymology.Agents
                     transform.position += new Vector3(0, 1, 0);
                     
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tries to move the ant down, the ant can only move down if there is an air block below it. Ants must dig first if they want to move down on a block that is not air.
+        /// </summary>
+        void tryDown()
+        {
+            if (lookBelow() is AirBlock)
+            {
+                transform.position += new Vector3(0, -1, 0);
             }
         }
 
