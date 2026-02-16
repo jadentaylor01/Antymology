@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using Antymology.Terrain;
+using System.Configuration.Assemblies;
 
 namespace Antymology.Agents
 {
@@ -10,10 +11,16 @@ namespace Antymology.Agents
         /// <summary>
         /// Health of the ant, when it reaches 0 the ant will be destroyed.
         /// </summary>
-        public int health = 10000;
+        public int currentHealth = 10000;
         /// <summary>
         /// How fast the health decreases per simulation tick.
         /// </summary>
+        
+        /// <summary>
+        /// The max health of the ant.
+        /// </summary>
+        public int maxHealth = 10000;
+
         public int healthDecayRate = 1;
 
         /// <summary>
@@ -24,7 +31,7 @@ namespace Antymology.Agents
         /// <summary>
         /// How much health is restored when the ant consumes a mulch block.
         /// </summary>
-        public int foodHealRate = 10;
+        public int foodHealRate = 100;
          
         /// <summary>
         /// How long in seconds between each simulation tick.
@@ -46,6 +53,7 @@ namespace Antymology.Agents
         {
             // Start up the main loop, we dont want this once per frame so we can assign a custom tick rate.
             InvokeRepeating("tickSimulation", 1f, simulationTickRate);
+            currentHealth = maxHealth;
         }
 
         // Update is called once per frame
@@ -61,7 +69,7 @@ namespace Antymology.Agents
         {   
             tryDown(); // Make sure ants don't float if another ant dug below.
             checkAcid();
-            manageHealth();
+            damage(healthDecayRate * healthDecayMultiplier);
 
             Debug.Log("" + ticksElapsed);
 
@@ -88,14 +96,23 @@ namespace Antymology.Agents
         /// <summary>
         /// Manages the health of the ant, decreasing it by the healthDecayRate each simulation tick and destroying the ant if its health reaches 0 or below.
         /// </summary>
-        public void manageHealth()
+        public void damage(int damageAmount = 0)
         {
-            health -= healthDecayRate * healthDecayMultiplier;
-            if (health <= 0)
+            currentHealth -= damageAmount;
+            if (currentHealth <= 0)
             {
                 Destroy(gameObject);
             } 
 
+        }
+
+        public void heal(int healAmount)
+        {
+            currentHealth += healAmount;
+            if (currentHealth > maxHealth)
+            {
+                currentHealth = maxHealth;
+            }
         }
 
         /// <summary>
@@ -122,7 +139,7 @@ namespace Antymology.Agents
             {
                 // TODO: Check if there is an another ant on the block.
                 dig();
-                health += foodHealRate;
+                heal(foodHealRate);
             }
         }
 
@@ -180,6 +197,14 @@ namespace Antymology.Agents
             if (lookBelow() is AirBlock)
             {
                 transform.position += new Vector3(0, -1, 0);
+            }
+        }
+
+        public void tryUp()
+        {
+            if (lookUp() is AirBlock)
+            {
+                transform.position += new Vector3(0, 1, 0);
             }
         }
 
@@ -283,6 +308,21 @@ namespace Antymology.Agents
                 (int)currentPosition.z
             );
             return blockBelow;
+        }
+
+        /// <summary>
+        /// Looks at the block above the ant.
+        /// </summary>
+        /// <returns>AbstractBlock above the ant</returns>
+        public AbstractBlock lookUp()
+        {
+            Vector3 currentPosition = transform.position + new Vector3(0, 2, 0);
+            AbstractBlock blockUp = worldManager.GetBlock(
+                (int)currentPosition.x, 
+                (int)currentPosition.y, 
+                (int)currentPosition.z
+            );
+            return blockUp;
         }
 
         /// <summary>
