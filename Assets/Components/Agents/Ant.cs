@@ -84,17 +84,12 @@ namespace Antymology.Agents
 
         void forward()
         {
-            Debug.Log("Forward");
-
             // Check to find if the ant needs to move forward, forward down, forward up, or if it cannot move at all
-            Debug.Log("Forward: " + lookForward());
             if (lookForward() is AirBlock) {
                 // The block forward is air
-                Debug.Log("Forward Down: " + lookForwardDown());
                 if (lookForwardDown() is AirBlock)
                 {
                     // There is no block below the forward block, can only move if there is a block below it
-                    Debug.Log("Forward Down 2: " + lookForwardDown2());
                     if (!(lookForwardDown2() is AirBlock))
                     {
                         // There is a block to move on to, can move forward and down
@@ -108,7 +103,6 @@ namespace Antymology.Agents
                 }
             } else {
                 // The block forward is not air, check if it can move up
-                Debug.Log("Forward Up: " + lookForwardUp());
                 if (lookForwardUp() is AirBlock) {
                     // There is not a block above the forward block, can move forward and up
                     transform.position += transform.forward;
@@ -126,6 +120,7 @@ namespace Antymology.Agents
             Vector3 currentRotation = transform.eulerAngles;
             transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y + 90, currentRotation.z);
         }
+
         /// <summary>
         /// Turns the ant 90 degrees to the left.
         /// </summary>
@@ -145,12 +140,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward;
             Vector3 forwardBlockPosition = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockForward = worldManager.GetBlock(
                 (int)forwardBlockPosition.x,
                 (int)forwardBlockPosition.y,
                 (int)forwardBlockPosition.z
             );
-            return blockInFront;
+            return blockForward;
         }
 
         /// <summary>
@@ -162,12 +157,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward - new Vector3(0, 1, 0);
             Vector3 forwardDownBlockPosition = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockForwardDown = worldManager.GetBlock(
                 (int)forwardDownBlockPosition.x,
                 (int)forwardDownBlockPosition.y,
                 (int)forwardDownBlockPosition.z
             );
-            return blockInFront;
+            return blockForwardDown;
         }
 
         /// <summary>
@@ -179,12 +174,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward - new Vector3(0, 2, 0);
             Vector3 forwardBlockDown2Position = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockForwardDown2 = worldManager.GetBlock(
                 (int)forwardBlockDown2Position.x,
                 (int)forwardBlockDown2Position.y,
                 (int)forwardBlockDown2Position.z
             );
-            return blockInFront;
+            return blockForwardDown2;
         }
 
         /// <summary>
@@ -196,12 +191,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward + new Vector3(0, 1, 0);
             Vector3 forwardUpBlockPosition = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockForwardUp = worldManager.GetBlock(
                 (int)forwardUpBlockPosition.x,
                 (int)forwardUpBlockPosition.y,
                 (int)forwardUpBlockPosition.z
             );
-            return blockInFront;
+            return blockForwardUp;
         }
 
         /// <summary>
@@ -228,12 +223,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.right;
             Vector3 rightBlockPosition = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockRight = worldManager.GetBlock(
                 (int)rightBlockPosition.x,
                 (int)rightBlockPosition.y,
                 (int)rightBlockPosition.z
             );
-            return blockInFront;
+            return blockRight;
         }
 
         /// <summary>
@@ -245,12 +240,12 @@ namespace Antymology.Agents
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = -transform.right;
             Vector3 leftBlockPosition = currentPosition + blockOffset;
-            AbstractBlock blockInFront = worldManager.GetBlock(
+            AbstractBlock blockLeft = worldManager.GetBlock(
                 (int)leftBlockPosition.x,
                 (int)leftBlockPosition.y,
                 (int)leftBlockPosition.z
             );
-            return blockInFront;
+            return blockLeft;
         }
 
     }
