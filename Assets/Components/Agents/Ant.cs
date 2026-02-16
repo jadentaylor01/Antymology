@@ -1,7 +1,6 @@
 
 using UnityEngine;
 using Antymology.Terrain;
-using System.ComponentModel;
 
 namespace Antymology.Agents
 {
@@ -20,7 +19,7 @@ namespace Antymology.Agents
         /// <summary>
         /// A multiplier so that health can decay faster when the ant is in an acidic region.
         /// </summary>
-        private int healthDecayMultiplier = 1;
+        public int healthDecayMultiplier = 1;
 
         /// <summary>
         /// How much health is restored when the ant consumes a mulch block.
@@ -35,7 +34,7 @@ namespace Antymology.Agents
         /// <summary>
         /// How many simulation ticks have elapsed since the ant was created.
         /// </summary>
-        private int ticksElapsed = 0;
+        public int ticksElapsed = 0;
 
         /// <summary>
         /// The raw data of the underlying world structure.
@@ -61,9 +60,8 @@ namespace Antymology.Agents
         void tickSimulation()
         {   
             tryDown(); // Make sure ants don't float if another ant dug below.
-
-            manageHealth();
             checkAcid();
+            manageHealth();
 
             Debug.Log("" + ticksElapsed);
 
@@ -90,7 +88,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Manages the health of the ant, decreasing it by the healthDecayRate each simulation tick and destroying the ant if its health reaches 0 or below.
         /// </summary>
-        void manageHealth()
+        public void manageHealth()
         {
             health -= healthDecayRate * healthDecayMultiplier;
             if (health <= 0)
@@ -103,7 +101,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Changes the healthDecayMultiplier so that the ant loses health faster when it is on an acidic block.
         /// </summary>
-        void checkAcid()
+        public void checkAcid()
         {
             if (lookBelow() is AcidicBlock)
             {
@@ -118,7 +116,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Consumes the block below the ant. The block must be mulch and there can only be one ant on the block that is being consumed.
         /// </summary>
-        void consumeMulchBlockBelow()
+        public void consumeMulchBlockBelow()
         {
             if (lookBelow() is MulchBlock)
             {
@@ -131,7 +129,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Digs the block below the ant, replacing it with an air block. The ant will then try to move down.
         /// </summary>
-        void dig()
+        public void dig()
         {
             if (lookBelow() is not ContainerBlock)
             {
@@ -144,7 +142,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Moves the ant forward if possible. The ant will try to move forward, if it cannot move forward it will try to move forward and down, if it cannot move forward and down it will try to move forward and up, if it cannot move in any of those directions it will not move at all.
         /// </summary>
-        void forward()
+        public void forward()
         {
             // Check to find if the ant needs to move forward, forward down, forward up, or if it cannot move at all
             if (lookForward() is AirBlock) {
@@ -177,7 +175,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Tries to move the ant down, the ant can only move down if there is an air block below it. Ants must dig first if they want to move down on a block that is not air.
         /// </summary>
-        void tryDown()
+        public void tryDown()
         {
             if (lookBelow() is AirBlock)
             {
@@ -188,7 +186,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Turns the ant 90 degrees to the right.
         /// </summary>
-        void turnRight()
+        public void turnRight()
         {
             Vector3 currentRotation = transform.eulerAngles;
             transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y + 90, currentRotation.z);
@@ -197,7 +195,7 @@ namespace Antymology.Agents
         /// <summary>
         /// Turns the ant 90 degrees to the left.
         /// </summary>
-        void turnLeft()
+        public void turnLeft()
         {
             Vector3 currentRotation = transform.eulerAngles;
             transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y - 90, currentRotation.z);
@@ -207,7 +205,7 @@ namespace Antymology.Agents
         /// Looks at the block in front of the ant.
         /// </summary>
         /// <returns>AbstractBlock in front of the ant</returns>
-        AbstractBlock lookForward()
+        public AbstractBlock lookForward()
         {
             
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
@@ -225,7 +223,7 @@ namespace Antymology.Agents
         /// Looks at the block forward and down 1 from the ant.
         /// </summary>
         /// <returns>AbstractBlock forward and down 1 from the ant</returns>
-        AbstractBlock lookForwardDown()
+        public AbstractBlock lookForwardDown()
         {
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward - new Vector3(0, 1, 0);
@@ -242,7 +240,7 @@ namespace Antymology.Agents
         /// Looks at the block forward and down 2 from the ant.
         /// </summary>
         /// <returns>AbstractBlock forward and down 2 from the ant</returns>
-        AbstractBlock lookForwardDown2()
+        public AbstractBlock lookForwardDown2()
         {
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward - new Vector3(0, 2, 0);
@@ -259,7 +257,7 @@ namespace Antymology.Agents
         /// Looks at the block forward and up 1 from the ant.
         /// </summary>
         /// <returns>AbstractBlock forward and up 1 from the ant</returns>
-        AbstractBlock lookForwardUp()
+        public AbstractBlock lookForwardUp()
         {
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.forward + new Vector3(0, 1, 0);
@@ -276,7 +274,7 @@ namespace Antymology.Agents
         /// Looks at the block below the ant.
         /// </summary>
         /// <returns>AbstractBlock below the ant</returns>
-        AbstractBlock lookBelow()
+        public AbstractBlock lookBelow()
         {
             Vector3 currentPosition = transform.position;
             AbstractBlock blockBelow = worldManager.GetBlock(
@@ -291,7 +289,7 @@ namespace Antymology.Agents
         /// Looks at the block to the right of the ant.
         /// </summary>
         /// <returns>AbstractBlock to the right of the ant</returns>
-        AbstractBlock lookRight()
+        public AbstractBlock lookRight()
         {
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = transform.right;
@@ -308,7 +306,7 @@ namespace Antymology.Agents
         /// Looks at the block to the left of the ant.
         /// </summary>
         /// <returns>AbstractBlock to the left of the ant</returns>
-        AbstractBlock lookLeft()
+        public AbstractBlock lookLeft()
         {
             Vector3 currentPosition = transform.position + new Vector3(0, 1, 0);
             Vector3 blockOffset = -transform.right;

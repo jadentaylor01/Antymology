@@ -369,8 +369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbd0fdbaf66dc1a4488d999aa299645f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  antPrefab: {fileID: 6348086330148115841, guid: 36f06437b215bf54998730a30ed44489,
-    type: 3}
+  antPrefab: {fileID: 0}
   blockMaterial: {fileID: 2100000, guid: 4db9d8fce1a69b74f81daf1375c9ed88, type: 2}
 --- !u!4 &964896558
 Transform:
@@ -404,7 +403,7 @@ MonoBehaviour:
   World_Height: 4
   Chunk_Diameter: 8
   Tile_Map_Unit_Ratio: 0.25
-  Number_Of_Acidic_Regions: 10
+  Number_Of_Acidic_Regions: 10000
   Acidic_Region_Radius: 5
   Number_Of_Conatiner_Spheres: 5
   Conatiner_Sphere_Radius: 10
