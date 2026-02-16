@@ -1,6 +1,5 @@
 ﻿using Antymology.Helpers;
 using Antymology.Agents;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +15,11 @@ namespace Antymology.Terrain
         /// The prefab containing the ant.
         /// </summary>
         public Ant antPrefab;
+
+        /// <summary>
+        /// The prefab containing the queen ant.
+        /// </summary>
+        public QueenAnt queenAntPrefab;
 
         /// <summary>
         /// The material used for eech block.
@@ -85,28 +89,54 @@ namespace Antymology.Terrain
         }
 
         /// <summary>
-        /// TO BE IMPLEMENTED BY YOU
+        /// Generate the queen ant and worker ants at the start of the simulation, placing them in a radius around the center of the map above the first non-air block.
         /// </summary>
         private void GenerateAnts()
         {
+            // Spawn point is the center of the map.
             float antStartX = Blocks.GetLength(0) / 2;
-            float antStartY = Blocks.GetLength(1) - 0.4f;
             float antStartZ = Blocks.GetLength(2) / 2;
 
-            // Place the any on the first non-air block from the top down at the center of the map
-            AbstractBlock blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ);
+            // Create the queen
+            QueenAnt queenAnt = Instantiate<QueenAnt>(queenAntPrefab);
+            queenAnt.worldManager = this;
+            queenAnt.transform.position = new Vector3(antStartX, getFirstNonAirBlockY(antStartX, antStartZ), antStartZ);
+
+            // Create the worker ants
+            for (int i = 0; i < ConfigurationManager.Instance.Number_Of_Ants_To_Spawn; i++)
+            {
+                int radius = ConfigurationManager.Instance.Ant_Spawn_Radius;
+                float xOffset = Random.Range(-radius, radius);
+                float zOffset = Random.Range(-radius, radius);
+
+                Ant ant = Instantiate<Ant>(antPrefab);
+                ant.worldManager = this;
+                ant.transform.position = new Vector3(
+                    antStartX + xOffset, 
+                    getFirstNonAirBlockY(antStartX + xOffset, antStartZ + zOffset), 
+                    antStartZ + zOffset
+                );
+            }
+        }
+
+        /// <summary>
+        /// Given an x and z world coordinate, returns the y coordinate of the first non-air block at that x and z coordinate.
+        /// If there are no non-air blocks, returns -1.
+        /// Accounts for the fact that ants need to be placed a little lower so that they are on top of the block instead of floating.
+        /// </summary>
+        /// <returns>float value of the y coord that the ant should be placed at</returns>
+        private float getFirstNonAirBlockY(float x, float z)
+        {
+            float y = Blocks.GetLength(1) - 0.4f;
+
+            AbstractBlock blockBelow = GetBlock((int)x, (int)y - 1, (int)z);
             while (blockBelow is AirBlock)
             {
-                antStartY -= 1f;
-                blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ);  
+                y -= 1f;
+                blockBelow = GetBlock((int)x, (int)y - 1, (int)z);
             }
-            antStartY -= 1f;
-            blockBelow = GetBlock((int)antStartX, (int)antStartY - 1, (int)antStartZ); 
-
-            // Intatiate the ant prefab at this location
-            Ant ant = Instantiate<Ant>(antPrefab);
-            ant.worldManager = this;
-            ant.transform.position = new Vector3(antStartX, antStartY, antStartZ);
+            y -= 1f;
+            return y;
         }
 
         #endregion

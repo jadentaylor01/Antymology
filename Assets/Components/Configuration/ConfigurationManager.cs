@@ -49,4 +49,14 @@ public class ConfigurationManager : Singleton<ConfigurationManager>
     /// The radius of each acidic region
     /// </summary>
     public int Conatiner_Sphere_Radius = 20;
+
+    /// <summary>
+    /// The radius around the queen ant spawn point in which ants will be spawned.
+    /// </summary>
+    public int Ant_Spawn_Radius = 20;
+
+    /// <summary>
+    /// The number of ants to spawn at the start of the simulation, not including the queen.
+    /// </summary>
+    public int Number_Of_Ants_To_Spawn = 10;
 }
