@@ -410,7 +410,7 @@ MonoBehaviour:
   Acidic_Region_Radius: 5
   Number_Of_Conatiner_Spheres: 5
   Conatiner_Sphere_Radius: 10
-  Ant_Spawn_Radius: 20
+  Ant_Spawn_Radius: 5
   Number_Of_Ants_To_Spawn: 10
 --- !u!850595691 &1478306553
 LightingSettings:

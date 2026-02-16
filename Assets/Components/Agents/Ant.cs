@@ -44,9 +44,16 @@ namespace Antymology.Agents
         public int ticksElapsed = 0;
 
         /// <summary>
+        /// True if this ant is on the same block as another ant. We set this with collider triggers.
+        /// </summary>
+        public bool overlappingWithOtherAnt = false;
+
+        /// <summary>
         /// The raw data of the underlying world structure.
         /// </summary>
         public WorldManager worldManager;
+
+        public bool userControlsEnabled = false;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
@@ -56,10 +63,39 @@ namespace Antymology.Agents
             currentHealth = maxHealth;
         }
 
-        // Update is called once per frame
+        void OnTriggerStay(Collider insideCollider) {
+            if (insideCollider.CompareTag("Ant")) {
+            
+            }
+        }
+
+        void OnTriggerExit(Collider exitedCollider) {
+            if (exitedCollider.CompareTag("Ant")) {
+                overlappingWithOtherAnt = false;
+            }
+        }
+
         void Update()
         {
-
+            if (userControlsEnabled)
+            {
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    forward();
+                }
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    turnRight();
+                }
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    turnLeft();
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    consumeMulchBlockBelow();
+                }
+            }
         }
 
         /// <summary>
@@ -74,20 +110,20 @@ namespace Antymology.Agents
             Debug.Log("" + ticksElapsed);
 
             // For now have ants move forward, right, forward, left, then repeat. This is just to have some movement in the simulation, this will be replaced with more complex behavior in the future.
-            if (ticksElapsed % 4 == 0 || ticksElapsed % 4 == 2)
-            {
-                forward();
-            }
+            // if (ticksElapsed % 4 == 0 || ticksElapsed % 4 == 2)
+            // {
+            //     forward();
+            // }
 
-            if (ticksElapsed % 4 == 1)
-            {
-                turnRight();
-            }
+            // if (ticksElapsed % 4 == 1)
+            // {
+            //     turnRight();
+            // }
 
-            if (ticksElapsed % 4 == 3)
-            {
-                consumeMulchBlockBelow();
-            }
+            // if (ticksElapsed % 4 == 3)
+            // {
+            //     consumeMulchBlockBelow();
+            // }
 
             // Debug.Log(health);
             ticksElapsed++;
@@ -135,9 +171,8 @@ namespace Antymology.Agents
         /// </summary>
         public void consumeMulchBlockBelow()
         {
-            if (lookBelow() is MulchBlock)
+            if (lookBelow() is MulchBlock && !overlappingWithOtherAnt)
             {
-                // TODO: Check if there is an another ant on the block.
                 dig();
                 heal(foodHealRate);
             }
