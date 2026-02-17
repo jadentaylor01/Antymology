@@ -13,15 +13,15 @@ namespace Antymology.Agents
         /// Health of the ant, when it reaches 0 the ant will be destroyed.
         /// </summary>
         public int currentHealth = 10000;
-        /// <summary>
-        /// How fast the health decreases per simulation tick.
-        /// </summary>
-        
+
         /// <summary>
         /// The max health of the ant.
         /// </summary>
         public int maxHealth = 10000;
 
+        /// <summary>
+        /// How fast the health decreases per simulation tick.
+        /// </summary>
         public int healthDecayRate = 1;
 
         /// <summary>
@@ -54,12 +54,14 @@ namespace Antymology.Agents
         /// </summary>
         public bool overlappingWithOtherAnt = false;
 
-
         /// <summary>
         /// The raw data of the underlying world structure.
         /// </summary>
         public WorldManager worldManager;
-
+        
+        /// <summary>
+        /// Whether or not the user can control this ant with the arrow keys and space bar. This is just for testing purposes, it will be set to false for all ants in the actual simulation.
+        /// </summary>
         public bool userControlsEnabled = false;
 
         /// <summary>
@@ -75,20 +77,9 @@ namespace Antymology.Agents
             currentHealth = maxHealth;
         }
 
-        void OnTriggerStay(Collider insideCollider) {
-            if (insideCollider.CompareTag("Ant")) {
-                overlappingWithOtherAnt = true;
-                overlappingAnts.Add(insideCollider.gameObject);
-            }
-        }
-
-        void OnTriggerExit(Collider exitedCollider) {
-            if (exitedCollider.CompareTag("Ant")) {
-                overlappingWithOtherAnt = false;
-                overlappingAnts.Remove(exitedCollider.gameObject);
-            }
-        }
-
+        /// <summary>
+        /// Allows us to test out the ant controls. 
+        /// </summary>
         void Update()
         {
             if (userControlsEnabled)
@@ -151,6 +142,28 @@ namespace Antymology.Agents
 
             // Debug.Log(health);
             ticksElapsed++;
+        }
+
+        /// <summary>
+        /// Handles overlapping ants so that we can detect when other ants are on the same black as this ant.
+        /// </summary>
+        /// <param name="insideCollider"></param>
+        void OnTriggerStay(Collider insideCollider) {
+            if (insideCollider.CompareTag("Ant")) {
+                overlappingWithOtherAnt = true;
+                overlappingAnts.Add(insideCollider.gameObject);
+            }
+        }
+
+        /// <summary>
+        /// Handles when ants stop overlapping so that we can update our state accordingly.
+        /// </summary>
+        /// <param name="exitedCollider"></param>
+        void OnTriggerExit(Collider exitedCollider) {
+            if (exitedCollider.CompareTag("Ant")) {
+                overlappingWithOtherAnt = false;
+                overlappingAnts.Remove(exitedCollider.gameObject);
+            }
         }
 
         #region Ant Actions
