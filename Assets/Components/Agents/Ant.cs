@@ -2,6 +2,7 @@
 using UnityEngine;
 using Antymology.Terrain;
 using System.Configuration.Assemblies;
+using System.Collections.Generic;
 
 namespace Antymology.Agents
 {
@@ -27,6 +28,11 @@ namespace Antymology.Agents
         /// A multiplier so that health can decay faster when the ant is in an acidic region.
         /// </summary>
         public int healthDecayMultiplier = 1;
+
+        /// <summary>
+        /// The rate at which health is tranferred from one ant to another when they are overlapping when the health transfer function is called.
+        /// </summary>
+        public int healthTransferRate = 100;
 
         /// <summary>
         /// How much health is restored when the ant consumes a mulch block.
@@ -56,6 +62,11 @@ namespace Antymology.Agents
 
         public bool userControlsEnabled = false;
 
+        /// <summary>
+        /// A hash set that contains all the other ants currently overlapping with the ant.
+        /// </summary>
+        private HashSet<GameObject> overlappingAnts = new HashSet<GameObject>();
+
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
@@ -67,12 +78,14 @@ namespace Antymology.Agents
         void OnTriggerStay(Collider insideCollider) {
             if (insideCollider.CompareTag("Ant")) {
                 overlappingWithOtherAnt = true;
+                overlappingAnts.Add(insideCollider.gameObject);
             }
         }
 
         void OnTriggerExit(Collider exitedCollider) {
             if (exitedCollider.CompareTag("Ant")) {
                 overlappingWithOtherAnt = false;
+                overlappingAnts.Remove(exitedCollider.gameObject);
             }
         }
 
@@ -94,7 +107,17 @@ namespace Antymology.Agents
                 }
                 if (Input.GetKeyDown(KeyCode.DownArrow))
                 {
-                    consumeMulchBlockBelow();
+                    if (lookBelow() is MulchBlock)
+                    {
+                        consumeMulchBlockBelow();
+                    } else
+                    {
+                        dig();
+                    } 
+                }
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    transferHealthToOverlappingAnts();
                 }
             }
         }
@@ -130,6 +153,18 @@ namespace Antymology.Agents
             ticksElapsed++;
         }
         
+        public void transferHealthToOverlappingAnts()
+        {
+            foreach (GameObject otherAntObject in overlappingAnts)
+            {
+                Ant otherAnt = otherAntObject.GetComponent<Ant>();
+                if (otherAnt != null)
+                {
+                    transferHealth(otherAnt);
+                }
+            }
+        }
+
         /// <summary>
         /// Manages the health of the ant, decreasing it by the healthDecayRate each simulation tick and destroying the ant if its health reaches 0 or below.
         /// </summary>
@@ -150,6 +185,21 @@ namespace Antymology.Agents
             {
                 currentHealth = maxHealth;
             }
+        }
+
+        /// <summary>
+        /// Transfers health from this ant to another ant. The amount of health transferred is determined by the healthTransferRate variable, and the ant will only transfer as much health as it has. The other ant cannot receive more health than its maxHealth.
+        /// </summary>
+        /// <param name="otherAnt">The ant to transfer health to</param>
+        private void transferHealth(Ant otherAnt)
+        {
+            int healthToTransfer = Mathf.Min(healthTransferRate, currentHealth);
+            if (otherAnt.currentHealth + healthToTransfer > otherAnt.maxHealth)
+            {
+                healthToTransfer = otherAnt.maxHealth - otherAnt.currentHealth;
+            }
+            damage(healthToTransfer);
+            otherAnt.heal(healthToTransfer);
         }
 
         /// <summary>
