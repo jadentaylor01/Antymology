@@ -101,6 +101,7 @@ namespace Antymology.Terrain
             QueenAnt queenAnt = Instantiate<QueenAnt>(queenAntPrefab);
             queenAnt.worldManager = this;
             queenAnt.transform.position = new Vector3(antStartX, getFirstNonAirBlockY(antStartX, antStartZ), antStartZ);
+            queenAnt.name = "Queen Ant";
 
             // Create the worker ants
             for (int i = 0; i < ConfigurationManager.Instance.Number_Of_Ants_To_Spawn; i++)
@@ -116,6 +117,7 @@ namespace Antymology.Terrain
                     getFirstNonAirBlockY(antStartX + xOffset, antStartZ + zOffset), 
                     antStartZ + zOffset
                 );
+                ant.name = "Worker Ant " + i;
             }
         }
 
