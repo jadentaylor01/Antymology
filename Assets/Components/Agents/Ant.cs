@@ -152,7 +152,84 @@ namespace Antymology.Agents
             // Debug.Log(health);
             ticksElapsed++;
         }
-        
+
+        #region Ant Actions
+
+        /// <summary>
+        /// Moves the ant forward if possible. The ant will try to move forward, if it cannot move forward it will try to move forward and down, if it cannot move forward and down it will try to move forward and up, if it cannot move in any of those directions it will not move at all.
+        /// </summary>
+        public void forward()
+        {
+            // Check to find if the ant needs to move forward, forward down, forward up, or if it cannot move at all
+            if (lookForward() is AirBlock) {
+                // The block forward is air
+                if (lookForwardDown() is AirBlock)
+                {
+                    // There is no block below the forward block, can only move if there is a block below it
+                    if (!(lookForwardDown2() is AirBlock))
+                    {
+                        // There is a block to move on to, can move forward and down
+                        transform.position += transform.forward;
+                        transform.position += new Vector3(0, -1, 0);
+                    } 
+                } else
+                {
+                    // There is a block below the forward block, can move forward
+                    transform.position += transform.forward;
+                }
+            } else {
+                // The block forward is not air, check if it can move up
+                if (lookForwardUp() is AirBlock) {
+                    // There is not a block above the forward block, can move forward and up
+                    transform.position += transform.forward;
+                    transform.position += new Vector3(0, 1, 0);
+                    
+                }
+            }
+        }
+        /// <summary>
+        /// Turns the ant 90 degrees to the right.
+        /// </summary>
+        public void turnRight()
+        {
+            Vector3 currentRotation = transform.eulerAngles;
+            transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y + 90, currentRotation.z);
+        }
+
+        /// <summary>
+        /// Turns the ant 90 degrees to the left.
+        /// </summary>
+        public void turnLeft()
+        {
+            Vector3 currentRotation = transform.eulerAngles;
+            transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y - 90, currentRotation.z);
+        }
+
+        /// <summary>
+        /// Consumes the block below the ant. The block must be mulch and there can only be one ant on the block that is being consumed.
+        /// </summary>
+        public void consumeMulchBlockBelow()
+        {
+            if (lookBelow() is MulchBlock && !overlappingWithOtherAnt)
+            {
+                dig();
+                heal(foodHealRate);
+            }
+        }
+
+        /// <summary>
+        /// Digs the block below the ant, replacing it with an air block. The ant will then try to move down.
+        /// </summary>
+        public void dig()
+        {
+            if (lookBelow() is not ContainerBlock)
+            {
+                Vector3 currentPosition = transform.position;
+                WorldManager.Instance.SetBlock((int)currentPosition.x, (int)currentPosition.y, (int)currentPosition.z, new AirBlock());
+                tryDown();
+            }
+        }
+
         public void transferHealthToOverlappingAnts()
         {
             foreach (GameObject otherAntObject in overlappingAnts)
@@ -164,6 +241,10 @@ namespace Antymology.Agents
                 }
             }
         }
+
+        #endregion
+
+        #region Ant Methods
 
         /// <summary>
         /// Manages the health of the ant, decreasing it by the healthDecayRate each simulation tick and destroying the ant if its health reaches 0 or below.
@@ -218,64 +299,6 @@ namespace Antymology.Agents
         }
 
         /// <summary>
-        /// Consumes the block below the ant. The block must be mulch and there can only be one ant on the block that is being consumed.
-        /// </summary>
-        public void consumeMulchBlockBelow()
-        {
-            if (lookBelow() is MulchBlock && !overlappingWithOtherAnt)
-            {
-                dig();
-                heal(foodHealRate);
-            }
-        }
-
-        /// <summary>
-        /// Digs the block below the ant, replacing it with an air block. The ant will then try to move down.
-        /// </summary>
-        public void dig()
-        {
-            if (lookBelow() is not ContainerBlock)
-            {
-                Vector3 currentPosition = transform.position;
-                WorldManager.Instance.SetBlock((int)currentPosition.x, (int)currentPosition.y, (int)currentPosition.z, new AirBlock());
-                tryDown();
-            }
-        }
-
-        /// <summary>
-        /// Moves the ant forward if possible. The ant will try to move forward, if it cannot move forward it will try to move forward and down, if it cannot move forward and down it will try to move forward and up, if it cannot move in any of those directions it will not move at all.
-        /// </summary>
-        public void forward()
-        {
-            // Check to find if the ant needs to move forward, forward down, forward up, or if it cannot move at all
-            if (lookForward() is AirBlock) {
-                // The block forward is air
-                if (lookForwardDown() is AirBlock)
-                {
-                    // There is no block below the forward block, can only move if there is a block below it
-                    if (!(lookForwardDown2() is AirBlock))
-                    {
-                        // There is a block to move on to, can move forward and down
-                        transform.position += transform.forward;
-                        transform.position += new Vector3(0, -1, 0);
-                    } 
-                } else
-                {
-                    // There is a block below the forward block, can move forward
-                    transform.position += transform.forward;
-                }
-            } else {
-                // The block forward is not air, check if it can move up
-                if (lookForwardUp() is AirBlock) {
-                    // There is not a block above the forward block, can move forward and up
-                    transform.position += transform.forward;
-                    transform.position += new Vector3(0, 1, 0);
-                    
-                }
-            }
-        }
-
-        /// <summary>
         /// Tries to move the ant down, the ant can only move down if there is an air block below it. Ants must dig first if they want to move down on a block that is not air.
         /// </summary>
         public void tryDown()
@@ -294,23 +317,9 @@ namespace Antymology.Agents
             }
         }
 
-        /// <summary>
-        /// Turns the ant 90 degrees to the right.
-        /// </summary>
-        public void turnRight()
-        {
-            Vector3 currentRotation = transform.eulerAngles;
-            transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y + 90, currentRotation.z);
-        }
+        #endregion
 
-        /// <summary>
-        /// Turns the ant 90 degrees to the left.
-        /// </summary>
-        public void turnLeft()
-        {
-            Vector3 currentRotation = transform.eulerAngles;
-            transform.eulerAngles = new Vector3(currentRotation.x, currentRotation.y - 90, currentRotation.z);
-        }
+        #region Ant Senses
 
         /// <summary>
         /// Looks at the block in front of the ant.
@@ -444,6 +453,6 @@ namespace Antymology.Agents
             );
             return blockLeft;
         }
-
+        #endregion
     }
 }
